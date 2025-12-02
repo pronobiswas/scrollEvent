@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Load Saved Polygon</title>
+<style>
+  body { margin:0; background:#000; display:flex; justify-content:center; align-items:center; height:100vh; }
+  svg { width:80%; height:80%; }
+  polygon { stroke:#00bae2; fill:rgba(0,186,226,0.18); stroke-width:4; stroke-linejoin:round; }
+</style>
+</head>
+<body>
+
+<svg viewBox="0 0 400 400">
+    <polygon id="star" points=""></polygon>
+</svg>
+
+<script>
+const star = document.getElementById('star');
+const storedPoints = JSON.parse(localStorage.getItem('polygonPoints'));
+console.log("storedPoints",storedPoints);
+
+if(storedPoints && storedPoints.length > 0){
+    const pointsStr = storedPoints.map(p => `${p.x},${p.y}`).join(' ');
+    star.setAttribute('points', pointsStr);
+}
+</script>
+
+</body>
+</html>

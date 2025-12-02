@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Polygon with Live Line Lengths</title>
+
+    <style>
+        body {
+            width: 100vw;
+            height: 100%;
+            font-family: sans-serif;
+            color: #7c7c6f;
+            background-color: rgb(0, 0, 0);
+            background-image:
+                repeating-linear-gradient(to right, #382b2b 0px, #685959 1px, transparent 1px, transparent 20px),
+                repeating-linear-gradient(to bottom, #474747 0px, #424242 1px, transparent 1px, transparent 20px);
+            overflow-x: hidden;
+
+        }
+
+        #svg {
+            position: fixed;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            overflow: visible;
+            z-index: 9999;
+        }
+
+        #star {
+            stroke-width: 20;
+            stroke-linejoin: round;
+            stroke: url(#grad-1);
+            fill: url(#grad-1);
+        }
+
+        .handle {
+            fill: transparent;
+            stroke-width: 4;
+            stroke: #fff;
+            cursor: pointer;
+        }
+
+        .marker {
+            fill: #fec5fb;
+            stroke: #fec5fb;
+            pointer-events: none;
+        }
+
+        #output {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <svg id="svg" viewBox="0 0 400 400">
+
+        <defs>
+            <circle class="handle" r="10" />
+            <circle class="marker" r="4" />
+
+            <linearGradient id="grad-1" x1="0" y1="0" x2="400" y2="400" gradientUnits="userSpaceOnUse">
+                <stop offset="0.2" stop-color="#00bae2"></stop>
+                <stop offset="0.8" stop-color="#fec5fb"></stop>
+            </linearGradient>
+        </defs>
+
+        <polygon id="star" points="150,150 250,150 250,250 100,250 100,200" />
+
+        <g id="marker-layer"></g>
+        <g id="handle-layer"></g>
+    </svg>
+
+    <div id="output">Line lengths will appear here…</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/Draggable.min.js"></script>
+
+    <!-- <script>
+        var star = document.querySelector("#star");
+        var markerDef = document.querySelector("defs .marker");
+        var handleDef = document.querySelector("defs .handle");
+        var markerLayer = document.querySelector("#marker-layer");
+        var handleLayer = document.querySelector("#handle-layer");
+        var output = document.getElementById("output");
+
+        var numPoints = star.points.numberOfItems;
+
+
+        for (let i = 0; i < numPoints; i++) {
+            let point = star.points.getItem(i);
+            createHandle(point);
+        }
+
+        function createHandle(point) {
+            var marker = createClone(markerDef, markerLayer, point);
+            var handle = createClone(handleDef, handleLayer, point);
+
+            var update = function () {
+                point.x = this.x;
+                point.y = this.y;
+                gsap.set(marker, { x: this.x, y: this.y });
+                savePoints();
+            };
+           
+
+            new Draggable(handle, {
+                onDrag: update,
+                onThrowUpdate: update,
+                bounds: window,
+                inertia: true,
+                onDragEnd: calculateLineLengths,
+                onThrowComplete: calculateLineLengths
+            });
+        }
+
+            function savePoints() {
+                const newpoints = [];
+                
+                for (let i = 0; i < star.points.numberOfItems; i++) {
+                    let p = star.points.getItem(i);
+                    newpoints.push({ x: p.x, y: p.y });
+                }
+
+                localStorage.setItem('polygonPoints', JSON.stringify(newpoints));
+            }
+
+        function createClone(node, parent, point) {
+            var element = node.cloneNode(true);
+            parent.appendChild(element);
+            gsap.set(element, { x: point.x, y: point.y });
+            return element;
+        }
+
+
+        
+
+        function calculateLineLengths() {
+            var totalLength = 0;
+            var sideLengths = [];
+
+            for (let i = 0; i < star.points.numberOfItems; i++) {
+                let p1 = star.points.getItem(i);
+                let p2 = star.points.getItem((i + 1) % star.points.numberOfItems);
+
+                let dx = p2.x - p1.x;
+                let dy = p2.y - p1.y;
+                let length = Math.sqrt(dx * dx + dy * dy);
+
+                sideLengths.push(length.toFixed(2));
+                totalLength += length;
+            }
+
+            output.innerHTML =
+                `<strong>Updated Side Lengths:</strong><br>${sideLengths.join(" px<br>")}<br><br>
+                <strong>Total Perimeter:</strong> ${totalLength.toFixed(2)} px`;
+        }
+
+
+        calculateLineLengths();
+    </script> -->
+
+<script>
+    var star = document.querySelector("#star");
+var markerDef = document.querySelector("defs .marker");
+var handleDef = document.querySelector("defs .handle");
+var markerLayer = document.querySelector("#marker-layer");
+var handleLayer = document.querySelector("#handle-layer");
+var output = document.getElementById("output");
+
+// ===== Load saved points if any =====
+const savedPoints = JSON.parse(localStorage.getItem('polygonPoints'));
+if (savedPoints && savedPoints.length) {
+    const pointsStr = savedPoints.map(p => `${p.x},${p.y}`).join(' ');
+    star.setAttribute('points', pointsStr);
+}
+
+var numPoints = star.points.numberOfItems;
+
+// Create draggable handles
+for (let i = 0; i < numPoints; i++) {
+    let point = star.points.getItem(i);
+    createHandle(point);
+}
+
+function createHandle(point) {
+    var marker = createClone(markerDef, markerLayer, point);
+    var handle = createClone(handleDef, handleLayer, point);
+
+    var update = function () {
+        point.x = this.x;
+        point.y = this.y;
+        gsap.set(marker, { x: this.x, y: this.y });
+        savePoints(); // save updated points
+    };
+
+    new Draggable(handle, {
+        onDrag: update,
+        onThrowUpdate: update,
+        bounds: window,
+        inertia: true,
+        onDragEnd: calculateLineLengths,
+        onThrowComplete: calculateLineLengths
+    });
+}
+
+// Save points to localStorage
+function savePoints() {
+    const newpoints = [];
+    for (let i = 0; i < star.points.numberOfItems; i++) {
+        let p = star.points.getItem(i);
+        newpoints.push({ x: p.x, y: p.y });
+    }
+    localStorage.setItem('polygonPoints', JSON.stringify(newpoints));
+}
+
+function createClone(node, parent, point) {
+    var element = node.cloneNode(true);
+    parent.appendChild(element);
+    gsap.set(element, { x: point.x, y: point.y });
+    return element;
+}
+
+function calculateLineLengths() {
+    var totalLength = 0;
+    var sideLengths = [];
+
+    for (let i = 0; i < star.points.numberOfItems; i++) {
+        let p1 = star.points.getItem(i);
+        let p2 = star.points.getItem((i + 1) % star.points.numberOfItems);
+
+        let dx = p2.x - p1.x;
+        let dy = p2.y - p1.y;
+        let length = Math.sqrt(dx * dx + dy * dy);
+
+        sideLengths.push(length.toFixed(2));
+        totalLength += length;
+    }
+
+    output.innerHTML =
+        `<strong>Updated Side Lengths:</strong><br>${sideLengths.join(" px<br>")}<br><br>
+        <strong>Total Perimeter:</strong> ${totalLength.toFixed(2)} px`;
+}
+
+// Initial calculation
+calculateLineLengths();
+
+</script>
+
+
+</body>
+
+</html>
