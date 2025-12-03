@@ -16,7 +16,7 @@
             background-image:
                 repeating-linear-gradient(to right, #382b2b 0px, #685959 1px, transparent 1px, transparent 20px),
                 repeating-linear-gradient(to bottom, #474747 0px, #424242 1px, transparent 1px, transparent 20px);
-                overflow-x: hidden;
+            overflow-x: hidden;
 
         }
 
@@ -131,6 +131,17 @@
             return element;
         }
 
+
+        // ======save new points===== 
+        function savePoints() {
+            const points = [];
+            for (let i = 0; i < star.points.numberOfItems; i++) {
+                let p = star.points.getItem(i);
+                points.push({ x: p.x, y: p.y });
+            }
+            // Save to localStorage as JSON
+            localStorage.setItem('polygonPoints', JSON.stringify(points));
+        }
         // Calculate length of each polygon side (LIVE values)
         function calculateLineLengths() {
             var totalLength = 0;
